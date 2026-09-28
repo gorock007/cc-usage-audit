@@ -251,7 +251,8 @@ def main():
             if role is None:
                 role = "headless (sdk / -p / hooks)" if headless else "interactive"
             s = {"id": sid, "project": pname, "entrypoint": ep, "role": role,
-                 "prompt": "" if a.redact else re.sub(r"\s+", " ", meta["prompt"])[:80]}
+                 "prompt": "" if a.redact else re.sub(r"\s+", " ", meta["prompt"])[:80],
+                 "raw_prompt": re.sub(r"\s+", " ", meta["prompt"])}
             for r in rs:
                 r["session"] = s
                 r["kind"] = "subagent" if r["sidechain"] else "main"
@@ -319,11 +320,12 @@ def main():
     hl = collections.defaultdict(lambda: collections.Counter())
     for s in sessions:
         if s["entrypoint"].startswith("sdk"):
-            key = (s["entrypoint"], "(redacted)" if a.redact else s["prompt"][:48])
+            key = (s["entrypoint"], s["raw_prompt"][:48])
             hl[key]["runs"] += 1
             hl[key]["usd"] += sum(r["usd"] for r in s["reqs"])
             hl[key]["turns"] += len(s["reqs"])
-    R["headless"] = [{"entrypoint": k[0], "prompt_start": k[1], **v} for k, v in hl.items()]
+    R["headless"] = [{"entrypoint": k[0], "prompt_start": f"(prompt {i + 1})" if a.redact else k[1], **v}
+                     for i, (k, v) in enumerate(sorted(hl.items(), key=lambda kv: -kv[1]["usd"]))]
 
     # 6. what turns were doing (main-session turns only)
     tc = collections.defaultdict(lambda: collections.Counter())
