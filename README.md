@@ -20,7 +20,7 @@ It's local only: no network calls, no dependencies, one file, Python 3.8+.
 ## Run it
 
 ```bash
-curl -O https://raw.githubusercontent.com/<you>/cc-usage-audit/main/cc_usage_audit.py
+curl -O https://raw.githubusercontent.com/gorock007/cc-usage-audit/main/cc_usage_audit.py
 python3 cc_usage_audit.py --days 7
 ```
 
